@@ -213,33 +213,41 @@
       const nextX = player.x + dx;
       const nextY = player.y + dy;
 
-      // 自キャラがゴミや画面外に重ならないようにチェック
-      const obstacleAtNext = garbageList.find(g => g.x === nextX && g.y === nextY) ||
-                             rockList.find(r => r.x === nextX && r.y === nextY);
-      if (obstacleAtNext) return; // ゴミや岩があれば移動できない
+      const rockAtNext = rockList.find(r => r.x === nextX && r.y === nextY);
+      const garbageAtNext = garbageList.find(g => g.x === nextX && g.y === nextY);
 
-      const garbageChain = [];
-      let gx = nextX, gy = nextY;
-      while (true) {
-        const found = garbageList.find(g => g.x === gx && g.y === gy);
-        const rockFound = rockList.find(r => r.x === gx && r.y === gy);
-        if (rockFound) {
-          break; // 岩でブロック
+      if (garbageAtNext) {
+        // ゴミがある場合、ゴミを押せるか確認
+        let pushable = true;
+        let gx = nextX, gy = nextY;
+        const movingGarbage = [];
+
+        while (true) {
+          const g = garbageList.find(item => item.x === gx && item.y === gy);
+          const r = rockList.find(item => item.x === gx && item.y === gy);
+
+          if (r) {
+            pushable = false;
+            break; // 岩があるので押せない
+          }
+
+          if (g) {
+            movingGarbage.push(g);
+            gx += dx;
+            gy += dy;
+          } else {
+            break;
+          }
         }
-        if (found) {
-          garbageChain.push(found);
-          gx += dx;
-          gy += dy;
-        } else {
-          break;
+
+        const blocked = garbageList.some(item => item.x === gx && item.y === gy) || rockList.some(item => item.x === gx && item.y === gy);
+        if (!pushable || blocked || gx < 0 || gx >= canvas.width || gy < 0 || gy >= canvas.height) {
+          return; // 押せない
         }
-      }
 
-      const blocked = garbageList.some(g => g.x === gx && g.y === gy) || rockList.some(r => r.x === gx && r.y === gy);
-
-      if (garbageChain.length > 0 && !blocked) {
-        for (let i = garbageChain.length - 1; i >= 0; i--) {
-          const g = garbageChain[i];
+        // ゴミをまとめて移動
+        for (let i = movingGarbage.length - 1; i >= 0; i--) {
+          const g = movingGarbage[i];
           g.x += dx;
           g.y += dy;
 
@@ -250,9 +258,17 @@
             playSound('pikoSound');
           }
         }
+      } else if (rockAtNext) {
+        // 岩は通行可能
+      } else {
+        // ゴミも岩もない場合
       }
-      player.x = nextX;
-      player.y = nextY;
+
+      // 自キャラは岩の上も通れる
+      if (nextX >= 0 && nextX < canvas.width && nextY >= 0 && nextY < canvas.height) {
+        player.x = nextX;
+        player.y = nextY;
+      }
     }
 
     function update() {
