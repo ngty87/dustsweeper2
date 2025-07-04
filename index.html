@@ -111,6 +111,7 @@
     const maxTime = 30;
     let countdownActive = false;
     let gameRunning = false;
+    let moveCooldown = 0; // 移動間隔制御
 
     function updateTimeBar() {
       const percent = Math.max(remainingTime, 0) / maxTime * 100;
@@ -145,6 +146,7 @@
       remainingTime = maxTime;
       gameOver = false;
       gameRunning = false;
+      moveCooldown = 0;
 
       const occupied = new Set();
       occupied.add(`${player.x},${player.y}`);
@@ -257,10 +259,14 @@
     }
 
     function handleInput() {
-      if (keys.ArrowUp) movePlayer(0, -tileSize);
-      if (keys.ArrowDown) movePlayer(0, tileSize);
-      if (keys.ArrowLeft) movePlayer(-tileSize, 0);
-      if (keys.ArrowRight) movePlayer(tileSize, 0);
+      if (moveCooldown > 0) {
+        moveCooldown--;
+        return;
+      }
+      if (keys.ArrowUp) { movePlayer(0, -tileSize); moveCooldown = 8; }
+      else if (keys.ArrowDown) { movePlayer(0, tileSize); moveCooldown = 8; }
+      else if (keys.ArrowLeft) { movePlayer(-tileSize, 0); moveCooldown = 8; }
+      else if (keys.ArrowRight) { movePlayer(tileSize, 0); moveCooldown = 8; }
     }
 
     function draw() {
@@ -283,7 +289,7 @@
     function gameLoop() {
       if (!gameOver && gameRunning) {
         handleInput();
-        remainingTime -= 1 / 60; // 元のスピードに戻す
+        remainingTime -= 1 / 60; // タイムゲージはそのまま
         updateTimeBar();
         if (remainingTime <= 0) {
           remainingTime = 0;
