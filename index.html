@@ -111,7 +111,8 @@
     const maxTime = 30;
     let countdownActive = false;
     let gameRunning = false;
-    let moveCooldown = 0; // 移動間隔制御
+    let moveCooldown = 0; // 自キャラ移動クールダウン
+    let animationFrameId; // requestAnimationFrame ID
 
     function updateTimeBar() {
       const percent = Math.max(remainingTime, 0) / maxTime * 100;
@@ -138,6 +139,8 @@
     }
 
     function resetGame() {
+      cancelAnimationFrame(animationFrameId); // 既存ループをキャンセル
+
       player = { x: 8 * tileSize, y: 8 * tileSize, size: tileSize, color: 'blue' };
       keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
       garbageList = [];
@@ -190,7 +193,7 @@
           countdownOverlay.style.display = 'none';
           countdownActive = false;
           gameRunning = true;
-          requestAnimationFrame(gameLoop);
+          animationFrameId = requestAnimationFrame(gameLoop);
         } else {
           countdownOverlay.textContent = count;
         }
@@ -304,7 +307,7 @@
         }
       }
       draw();
-      requestAnimationFrame(gameLoop);
+      animationFrameId = requestAnimationFrame(gameLoop);
     }
 
     document.addEventListener('keydown', e => {
