@@ -283,7 +283,7 @@
     function gameLoop() {
       if (!gameOver && gameRunning) {
         handleInput();
-        remainingTime -= 1 / 60;
+        remainingTime -= 1 / 90; // 少し遅くする
         updateTimeBar();
         if (remainingTime <= 0) {
           remainingTime = 0;
