@@ -240,7 +240,7 @@
         }
 
         const blocked = garbageList.some(item => item.x === gx && item.y === gy) || rockList.some(item => item.x === gx && item.y === gy);
-        if (!pushable || blocked || gx < 0 || gx >= canvas.width || gy < 0 || gy >= canvas.height) {
+        if (!pushable || blocked) {
           return; // 押せないので自キャラも移動不可
         }
 
@@ -257,13 +257,8 @@
             playSound('pikoSound');
           }
         }
-      } else if (rockList.find(r => r.x === nextX && r.y === nextY)) {
-        // 岩がある場合はそのまま通過可能
-      } else {
-        // ゴミも岩もない場合
       }
 
-      // 自キャラは岩の上も通れるが、ゴミの上は通れない
       if (!garbageAtNext && nextX >= 0 && nextX < canvas.width && nextY >= 0 && nextY < canvas.height) {
         player.x = nextX;
         player.y = nextY;
