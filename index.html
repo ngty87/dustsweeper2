@@ -7,7 +7,7 @@
     canvas {
       background-color: #e0f7e9;
       display: block;
-      margin: 20px auto 0;
+      margin: 20px auto;
       border: 2px solid #444;
     }
     p {
@@ -18,7 +18,7 @@
     #timeBarContainer {
       width: 480px;
       height: 20px;
-      margin: 10px auto 0;
+      margin: 10px auto;
       background: #ccc;
       border: 1px solid #999;
     }
@@ -26,6 +26,7 @@
       height: 100%;
       background: #4caf50;
       width: 100%;
+      transition: width 0.1s linear;
     }
     #virtualButtons {
       position: fixed;
@@ -94,8 +95,8 @@
     const countdownOverlay = document.getElementById('countdownOverlay');
 
     const tileSize = 30;
-    const cols = canvas.width / tileSize; // 16列
-    const rows = canvas.height / tileSize; // 16行
+    const cols = canvas.width / tileSize;
+    const rows = canvas.height / tileSize;
 
     let player, keys, garbageList, rockList;
     let score = 0;
@@ -106,7 +107,7 @@
     bestScore = parseInt(localStorage.getItem('bestScore_rocks'));
 
     let gameOver = false;
-    let startTime, remainingTime = 30;
+    let remainingTime = 30;
     const maxTime = 30;
     let countdownActive = false;
     let gameRunning = false;
@@ -119,8 +120,8 @@
     function playSound(id) {
       const sound = document.getElementById(id);
       if (sound) {
-        const clone = sound.cloneNode();
-        clone.play().catch(console.warn);
+        sound.currentTime = 0;
+        sound.play().catch(console.warn);
       }
     }
 
@@ -176,7 +177,6 @@
     function startCountdown() {
       countdownActive = true;
       countdownOverlay.style.display = 'flex';
-      countdownOverlay.style.background = '#000';
       let count = 3;
       countdownOverlay.textContent = count;
       const interval = setInterval(() => {
@@ -188,8 +188,7 @@
           countdownOverlay.style.display = 'none';
           countdownActive = false;
           gameRunning = true;
-          startTime = Date.now();
-          gameLoop();
+          requestAnimationFrame(gameLoop);
         } else {
           countdownOverlay.textContent = count;
         }
@@ -219,8 +218,7 @@
         const found = garbageList.find(g => g.x === gx && g.y === gy);
         const rockFound = rockList.find(r => r.x === gx && r.y === gy);
         if (rockFound) {
-          // 岩があれば移動キャンセル
-          return;
+          return; // 岩があれば移動キャンセル
         }
         if (found) {
           garbageChain.push(found);
@@ -253,19 +251,16 @@
         nextY >= 0 && nextY < canvas.height &&
         !garbageList.find(g => g.x === nextX && g.y === nextY)
       ) {
-        // ゴミも岩もなければ移動可能
         player.x = nextX;
         player.y = nextY;
       }
     }
 
-    function update() {
-      if (!gameOver && gameRunning) {
-        if (keys.ArrowUp) movePlayer(0, -tileSize);
-        if (keys.ArrowDown) movePlayer(0, tileSize);
-        if (keys.ArrowLeft) movePlayer(-tileSize, 0);
-        if (keys.ArrowRight) movePlayer(tileSize, 0);
-      }
+    function handleInput() {
+      if (keys.ArrowUp) movePlayer(0, -tileSize);
+      if (keys.ArrowDown) movePlayer(0, tileSize);
+      if (keys.ArrowLeft) movePlayer(-tileSize, 0);
+      if (keys.ArrowRight) movePlayer(tileSize, 0);
     }
 
     function draw() {
@@ -286,10 +281,9 @@
     }
 
     function gameLoop() {
-      const now = Date.now();
       if (!gameOver && gameRunning) {
-        remainingTime -= (now - startTime) / 1000;
-        startTime = now;
+        handleInput();
+        remainingTime -= 1 / 60;
         updateTimeBar();
         if (remainingTime <= 0) {
           remainingTime = 0;
@@ -335,7 +329,6 @@
     });
 
     resetGame();
-    setInterval(update, 100);
   </script>
 </body>
 </html>
