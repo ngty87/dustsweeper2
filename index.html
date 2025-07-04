@@ -263,10 +263,10 @@
         moveCooldown--;
         return;
       }
-      if (keys.ArrowUp) { movePlayer(0, -tileSize); moveCooldown = 8; }
-      else if (keys.ArrowDown) { movePlayer(0, tileSize); moveCooldown = 8; }
-      else if (keys.ArrowLeft) { movePlayer(-tileSize, 0); moveCooldown = 8; }
-      else if (keys.ArrowRight) { movePlayer(tileSize, 0); moveCooldown = 8; }
+      if (keys.ArrowUp) { movePlayer(0, -tileSize); moveCooldown = 5; }
+      else if (keys.ArrowDown) { movePlayer(0, tileSize); moveCooldown = 5; }
+      else if (keys.ArrowLeft) { movePlayer(-tileSize, 0); moveCooldown = 5; }
+      else if (keys.ArrowRight) { movePlayer(tileSize, 0); moveCooldown = 5; }
     }
 
     function draw() {
